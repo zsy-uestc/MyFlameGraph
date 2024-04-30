@@ -161,8 +161,7 @@ int main() {
 - 请确保json配置文件格式正确。
 
 
-
 ## 运行效果(在svg文件夹内，测试的是自己写的测试函数)
-![on-cpu-visualizations](./svgs/generate-on-cpu.svg)  
-![off-cpu-visualizations](./svgs/generate-off-cpu.svg)  
-![diff-visualizations](./svgs/generate-diff.svg)
+![on-cpu-visualizations](https://github.com/zsy-uestc/MyFlameGraph/blob/main/svgs/generate-on-cpu.svg)  
+![off-cpu-visualizations](https://github.com/zsy-uestc/MyFlameGraph/blob/main/svgs/generate-off-cpu.svg)  
+![diff-visualizations](https://github.com/zsy-uestc/MyFlameGraph/blob/main/svgs/generate-diff.svg)
