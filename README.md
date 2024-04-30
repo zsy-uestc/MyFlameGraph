@@ -1,6 +1,34 @@
-# MyFlameGraph 性能测试
+# MyFlameGraph 性能可视化
 
 FlameGraph 是一个用于生成火焰图的工具，可以用来分析程序的性能问题。本设计从on-cpu、off-cpu以及diff的角度出发，通过JSON文件来修改需求，可自定义采样率、采样周期、文件保存路径等。通过对生成的svg图分析，可以直观的发现程序的性能瓶颈。
+
+
+
+## 性能检测可选类型
+
+### on-cpu
+
+on-cpu 类型的火焰图用于分析程序在 CPU 上运行时的性能问题。生成 on-cpu 火焰图的方法如下：
+
+1. 配置参数：设置 `sampling_rates`、`durations`、`output_file_path` 和 `generate_svg_names` 参数。
+2. 运行程序：在程序运行期间，GenerateFlameGraph 会按照指定的采样率和持续时间进行采样。
+3. 生成火焰图：程序运行结束后，GenerateFlameGraph 会生成一个 SVG 文件，其中包含了程序在 CPU 上运行时的调用栈信息。
+
+### off-cpu
+
+off-cpu 类型的火焰图用于分析程序在等待 I/O、锁或其他资源时的性能问题。生成 off-cpu 火焰图的方法如下：
+
+1. 配置参数：设置 `sampling_rates`、`durations`、`output_file_path`、`generate_svg_names` 和 `events` 参数。
+2. 运行程序：在程序运行期间，GenerateFlameGraph 会按照指定的采样率和持续时间进行采样，并记录 off-cpu 事件。
+3. 生成火焰图：程序运行结束后，GenerateFlameGraph 会生成一个 SVG 文件，其中包含了程序在 off-cpu 状态时的调用栈信息。
+
+### diff
+
+diff 类型的火焰图用于比较两个不同时间点的程序性能差异。生成 diff 火焰图的方法如下：
+
+1. 配置参数：设置 `sampling_rates`、`durations`、`output_file_path`、`generate_svg_names` 和 `events` 参数。在 `events` 参数中，可以自定义 diff_on_cpu_events 和 diff_off_cpu_events 事件。
+2. 采集数据：分别在两个不同时间点采集程序的性能数据，可以使用 on-cpu 或 off-cpu 方式。
+3. 生成火焰图：使用 FlameGraph 工具对两个时间点的数据进行处理，生成一个 SVG 文件，其中包含了两个时间点程序性能的差异信息。
 
 
 
@@ -12,14 +40,14 @@ JSON 文件应具有以下结构，可以根据需要选择一项或多项（on-
 {
   "on-cpu": {
     "sampling_rates": "99",
-    "durations": "5",
+    "durations": "20",
     "output_file_path": "/home/zsy/code/FlameGraph/svgs/",
     "generate_svg_names": "generate-on-cpu",
     "events": []
   },
   "off-cpu": {
     "sampling_rates": "99",
-    "durations": "5",
+    "durations": "20",
     "output_file_path": "/home/zsy/code/FlameGraph/svgs/",
     "generate_svg_names": "generate-off-cpu",
     "events": [
@@ -32,12 +60,12 @@ JSON 文件应具有以下结构，可以根据需要选择一项或多项（on-
   },
   "diff": {
     "sampling_rates": "99",
-    "durations": "5",
+    "durations": "20",
     "output_file_path": "/home/zsy/code/FlameGraph/svgs/",
     "generate_svg_names": "generate-diff",
     "events": [
       {
-        "delay_time":"0",
+        "delay_time":"5",
         "type":"on-cpu",
         "diff_off_cpu_events": [
           "sched:sched_switch",
@@ -68,11 +96,11 @@ JSON 文件应具有以下结构，可以根据需要选择一项或多项（on-
 
 - **generate_svg_names**：生成的 SVG 文件名，可以根据需要自定义。默认值为 `generate-on-cpu`、`generate-off-cpu` 和 `generate-diff`。
 
-- **events**：事件列表，用于指定要采集的事件类型。在 on-cpu 中，默认为空；在 off-cpu 中，包括 `sched:sched_switch`、`sched:sched_stat_sleep`、`sched:sched_stat_iowait`、`sched:sched_stat_blocked` 和 `sched:sched_stat_wait`。
+- **events**：事件列表，用于指定要采集的事件类型。在 on-cpu 中，默认为空；在 off-cpu 中，可以根据需要选择适合的参数，默认值为 `sched:sched_switch`、`sched:sched_stat_sleep`、`sched:sched_stat_iowait`、`sched:sched_stat_blocked` 和 `sched:sched_stat_wait`。
 
-- **diff的events中，delay_time**：diff中对两段性能检测的间隔时间，单位为秒。默认值为0。
+- **diff的events中，delay_time**：diff中对两段性能检测的间隔时间，单位为秒。默认值为5。
 
-- **diff的events中，type**：可选on-cpu或off-cpu。表示间隔delay_time秒重复采样，生成性能的前后对比。
+- **diff的events中，type**：可选on-cpu或off-cpu。表示间隔delay_time秒度on-cpu或off-cpu重复采样，生成性能的前后对比差分图。
 
 - **diff的events中，diff_off_cpu_events**：在选择off-cpu时生效，参数选择见下。
 
@@ -91,28 +119,48 @@ JSON 文件应具有以下结构，可以根据需要选择一项或多项（on-
 
 
 
-## 使用方法
 
-### on-cpu
 
-on-cpu 类型的火焰图用于分析程序在 CPU 上运行时的性能问题。生成 on-cpu 火焰图的方法如下：
+# myflamegraph 测试函数使用说明
 
-1. 配置参数：设置 `sampling_rates`、`durations`、`output_file_path` 和 `generate_svg_names` 参数。
-2. 运行程序：在程序运行期间，FlameGraph 会按照指定的采样率和持续时间进行采样。
-3. 生成火焰图：程序运行结束后，FlameGraph 会生成一个 SVG 文件，其中包含了程序在 CPU 上运行时的调用栈信息。
+### 1. 概述
 
-### off-cpu
+`myflamegraph` 是一个用于生成火焰图的测试函数库。其中提供的主要测试函数：
 
-off-cpu 类型的火焰图用于分析程序在等待 I/O、锁或其他资源时的性能问题。生成 off-cpu 火焰图的方法如下：
+- `GenerateFlameGraph`: 生成火焰图
 
-1. 配置参数：设置 `sampling_rates`、`durations`、`output_file_path`、`generate_svg_names` 和 `events` 参数。
-2. 运行程序：在程序运行期间，FlameGraph 会按照指定的采样率和持续时间进行采样，并记录 off-cpu 事件。
-3. 生成火焰图：程序运行结束后，FlameGraph 会生成一个 SVG 文件，其中包含了程序在 off-cpu 状态时的调用栈信息。
+### 2. 函数的使用方法
 
-### diff
+对于待测试的函数，请确保继承`ShowFlameGraph` 类。
 
-diff 类型的火焰图用于比较两个不同时间点的程序性能差异。生成 diff 火焰图的方法如下：
+```c++
+#include "showFlameGraph.h"
 
-1. 配置参数：设置 `sampling_rates`、`durations`、`output_file_path`、`generate_svg_names` 和 `events` 参数。在 `events` 参数中，可以自定义 diff_on_cpu_events 和 diff_off_cpu_events 事件。
-2. 采集数据：分别在两个不同时间点采集程序的性能数据，可以使用 on-cpu 或 off-cpu 方式。
-3. 生成火焰图：使用 FlameGraph 工具对两个时间点的数据进行处理，生成一个 SVG 文件，其中包含了两个时间点程序性能的差异信息。
+class MyTestFunction : public ShowFlameGraph{
+    
+}    
+```
+
+在主函数中，首先创建测试类的实例，并正确传入JSON的绝对路径至GenerateFlameGraph（）方法。注意GenerateFlameGraph方法一定要在测试函数前运行，才能达到检测的效果。
+
+```c++
+#include "testFunction.h"
+int main() {
+    std::string config_file_path = "/home/zsy/code/MyFlameGraph/config/myconfig.json";
+    myflamegraph::MyTestFunction mtf;
+    mtf.GenerateFlameGraph(config_file_path);   //注意要在测试函数前面运行
+    mtf.TestFlameGraph();
+    return 0;
+}
+```
+
+### 3. 注意事项
+
+- 在调用测试函数之前，请确保已经成功运行了 `GenerateFlameGraph` 函数。
+- 请确保 `config_file_path` 变量指向一个有效的 JSON 配置文件路径。
+- 请确保json配置文件格式正确。
+
+
+
+## 运行效果
+

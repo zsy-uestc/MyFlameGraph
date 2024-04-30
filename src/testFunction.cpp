@@ -1,5 +1,4 @@
 #include "testFunction.h"
-#include "showFlameGraph.h"
 #include <iostream>
 #include <fstream>
 #include <ostream>
@@ -11,9 +10,7 @@
 namespace myflamegraph {
 
 MyTestFunction::MyTestFunction(){
-    myflamegraph::ShowFlameGraph sfg;
-    std::string config_file_path = "/home/zsy/code/FlameGraph/config/myconfig.json";
-};
+}
 
 unsigned long MyTestFunction::fibonacci(unsigned int n) {    
     if (n <= 1) return n;
@@ -123,26 +120,27 @@ void MyTestFunction::CostkernelResource(double durationSeconds) {
 }
 
 
-
 void MyTestFunction::TestFlameGraph() {
+    while(loop_count / 8 < 3){
+        //模拟循环三次
 
-    // 循环执行四个函数，每个函数的运行时间都是随机的
-    std::cout<<"\""<<loop_count<<". cpuTime = "<< runtime[loop_count % 8] <<std::endl;
-    MyTestFunction::CostCpuResource(runtime[loop_count % 8]);
-    loop_count++;
+        // 循环执行四个函数，每个函数的运行时间都是随机的
+        std::cout<<"\""<<loop_count<<". cpuTime = "<< runtime[loop_count % 8] <<std::endl;
+        MyTestFunction::CostCpuResource(runtime[loop_count % 8]);
+        loop_count++;
 
-    std::cout<<"\""<<loop_count<<". ioTime = "<< runtime[loop_count % 8] <<std::endl;
-    CostIoResource(runtime[loop_count % 8]);
-    loop_count++;
+        std::cout<<"\""<<loop_count<<". ioTime = "<< runtime[loop_count % 8] <<std::endl;
+        CostIoResource(runtime[loop_count % 8]);
+        loop_count++;
 
-    std::cout<<"\""<<loop_count<<". sleepTime = "<< runtime[loop_count % 8] <<std::endl;
-    CostkernelResource(runtime[loop_count % 8]);
-    loop_count++;
+        std::cout<<"\""<<loop_count<<". sleepTime = "<< runtime[loop_count % 8] <<std::endl;
+        CostkernelResource(runtime[loop_count % 8]);
+        loop_count++;
 
-    std::cout<<"\""<<loop_count<<". contextSwitchingTime = "<< runtime[loop_count % 8] <<std::endl;
-    CostContextSwitching(runtime[loop_count % 8]);
-    loop_count++;
-
+        std::cout<<"\""<<loop_count<<". contextSwitchingTime = "<< runtime[loop_count % 8] <<std::endl;
+        CostContextSwitching(runtime[loop_count % 8]);
+        loop_count++;
+    }
 }
 
 } // namespace flamegraph

@@ -8,16 +8,16 @@
 
 namespace myflamegraph {
 
-ShowFlameGraph::ShowFlameGraph(){
+ShowFlameGraph::ShowFlameGraph() {
     // 检查 perf 是否已安装
     if (!isPerfInstalled()) {
-        std::cout<<"正在安装perf工具，请等待... ..."<<std::endl;
+        std::cout << "正在安装perf工具，请等待... ..." << std::endl;
         // 如果未安装，安装 perf
         installPerf();
-        std::cout<<"安装完毕... ..."<<std::endl;
+        std::cout << "安装完毕... ..." << std::endl;
     }
-    //std::string config_file_path = "/home/zsy/code/FlameGraph/config/myconfig.json";
 }
+
 nlohmann::json ShowFlameGraph::LoadJson(const std::string& json_file_path) {
     nlohmann::json json_data;
     std::ifstream json_file(json_file_path);
@@ -216,48 +216,23 @@ void ShowFlameGraph::ExecuteFlameGraph(const std::string& json_file_path) {
     }
 }
 
-
-template <typename TestFunctionType>
-void ShowFlameGraph::RunFlameGraph(const std::string& config_file_path, TestFunctionType test_function) {
-    myflamegraph::ShowFlameGraph sfg;
-
-    pid_t pid = fork();
-    if (pid == 0) {
+pid_t ShowFlameGraph::child_pid = 0;
+void ShowFlameGraph::GenerateFlameGraph(const std::string& json_file_path) {
+    child_pid = fork(); // 用于存储子进程的 PID
+        
+    if (child_pid == 0) {
         // 子进程：执行性能测试和生成火焰图
-        sfg.ExecuteFlameGraph(config_file_path);
+        ExecuteFlameGraph(json_file_path);
         exit(0); // 子进程结束
-    } else if (pid > 0) {
-        // 父进程：运行待测试性能的函数
-        while(1) {
-            test_function(); // 调用其他开发人员提供的函数
-        }
+    } else if (child_pid > 0) {
+        // 父进程：注册退出处理函数（父进程运行结束，单子进程还在运行中，则强制结束子进程）
+        atexit(Cleanup);
     } else {
         // fork 失败
         std::cerr << "无法创建子进程。" << std::endl;
+        // 处理错误情况
     }
 }
-
-
-// void ShowFlameGraph::RunFlameGraph(const std::string& config_file_path, std::function<void()> test_function){
- 
-//     myflamegraph::ShowFlameGraph sfg;
-
-//     pid_t pid = fork();
-//     if (pid == 0) {
-//         // 子进程：执行性能测试和生成火焰图
-//         sfg.ExecuteFlameGraph(config_file_path);
-//         exit(0); // 子进程结束
-//     } else if (pid > 0) {
-//         // 父进程：运行待测试性能的函数
-//         while(1) {
-//             test_function(); // 调用其他开发人员提供的函数
-//         }
-//     } else {
-//         // fork 失败
-//         std::cerr << "无法创建子进程。" << std::endl;
-//     }
-// }
-
 
 bool ShowFlameGraph::isPerfInstalled() {
     std::string command = "perf --version";
@@ -270,6 +245,14 @@ void ShowFlameGraph::installPerf() {
     int status = system(command.c_str());
     if (WEXITSTATUS(status) != 0) {
         std::cerr << "Error: Failed to install perf." << std::endl;
+    }
+}
+
+void ShowFlameGraph::Cleanup() {
+    // 主进程退出时的清理函数
+    if (child_pid > 0) {
+    kill(child_pid, SIGTERM); // 发送 SIGTERM 信号给子进程
+    std::cout << "检测到测试函数已运行结束，正在终止子进程... ..." << std::endl;
     }
 }
 
