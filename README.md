@@ -72,9 +72,9 @@ JSON 文件应具有以下结构，可以根据需要选择一项或多项（on-
 
 - **diff的events中，delay_time**：diff中对两段性能检测的间隔时间，单位为秒。默认值为0。
 
-- **diff的events中，type：**可选on-cpu或off-cpu。表示间隔delay_time秒重复采样，生成性能的前后对比。
+- **diff的events中，type**：可选on-cpu或off-cpu。表示间隔delay_time秒重复采样，生成性能的前后对比。
 
-- **diff的events中，diff_off_cpu_events：**在选择off-cpu时生效，参数选择见下。
+- **diff的events中，diff_off_cpu_events**：在选择off-cpu时生效，参数选择见下。
 
 - **off-cpu's events**可选参数如下：
 
