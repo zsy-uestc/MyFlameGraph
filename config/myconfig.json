@@ -1,0 +1,45 @@
+{
+  "on-cpu": {
+    "sampling_rates": "99",
+    "durations": "20",
+    "output_file_path": "/home/zsy/code/FlameGraph/svgs/",
+    "generate_svg_names": "generate-on-cpu",
+    "events": []
+  },
+  "off-cpu": {
+    "sampling_rates": "99",
+    "durations": "20",
+    "output_file_path": "/home/zsy/code/FlameGraph/svgs/",
+    "generate_svg_names": "generate-off-cpu",
+    "events": [
+      "sched:sched_switch",
+      "sched:sched_stat_sleep",
+      "sched:sched_stat_iowait",
+      "sched:sched_stat_blocked",
+      "sched:sched_stat_wait"
+    ]
+  },
+  "diff": {
+    "sampling_rates": "99",
+    "durations": "20",
+    "output_file_path": "/home/zsy/code/FlameGraph/svgs/",
+    "generate_svg_names": "generate-diff",
+    "events": [
+      {
+        "delay_time":"0",
+        "type":"off-cpu",
+        "diff_off_cpu_events": [
+          "sched:sched_switch",
+          "sched:sched_stat_sleep",
+          "sched:sched_stat_iowait",
+          "sched:sched_stat_blocked",
+          "sched:sched_stat_wait"
+        ],
+        "diff_on_cpu_events":[]
+      }
+    ]
+  }
+}
+
+
+
