@@ -1,10 +1,11 @@
 #ifndef TESTFUNCTION_H
 #define TESTFUNCTION_H
 
+#include "showFlameGraph.h"
 #include <vector>
 namespace myflamegraph {
 
-class MyTestFunction {
+class MyTestFunction : public ShowFlameGraph{
 public:
     MyTestFunction();
 
@@ -25,7 +26,7 @@ public:
     static void *sleepInThread(void *arg);                     //线程实现函数
 
 private:
-    std::vector<int> runtime = {5,5,5,5,3,7,7,3};   //为了演示效果，定义各个函数运行的时间。
+    std::vector<int> runtime = {3,7,3,7,5,5,5,5};   //为了演示效果，定义各个函数运行的时间。
 
     int loop_count = 0;
 };
