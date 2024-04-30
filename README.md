@@ -138,7 +138,7 @@ JSON 文件应具有以下结构，可以根据需要选择一项或多项（on-
 
 class MyTestFunction : public ShowFlameGraph{
     
-}    
+}
 ```
 
 在主函数中，首先创建测试类的实例，并正确传入JSON的绝对路径至GenerateFlameGraph（）方法。注意GenerateFlameGraph方法一定要在测试函数前运行，才能达到检测的效果。
@@ -162,5 +162,7 @@ int main() {
 
 
 
-## 运行效果
-
+## 运行效果(在svg文件夹内，测试的是自己写的测试函数)
+![on-cpu-visualizations](./svgs/generate-on-cpu.svg)  
+![off-cpu-visualizations](./svgs/generate-off-cpu.svg)  
+![diff-visualizations](./svgs/generate-diff.svg)
