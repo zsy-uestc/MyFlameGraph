@@ -27,7 +27,7 @@ void MyTestFunction::CostCpuResource(double durationSeconds) {
 }
 
 void MyTestFunction::CostIoResource(double durationSeconds) {
-    std::ofstream outputFile("/home/zsy/code/FlameGraph/svgs/useIO.txt", std::ios::out | std::ios::binary);
+    std::ofstream outputFile("/home/zsy/code/MyFlameGraph/svgs/useIO.txt", std::ios::out | std::ios::binary);
     
     if (!outputFile.is_open()) {
         std::cerr << "无法打开文件进行写入。" << std::endl;

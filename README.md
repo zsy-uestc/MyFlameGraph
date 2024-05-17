@@ -1,6 +1,6 @@
 # MyFlameGraph 性能可视化
 
-FlameGraph 是一个用于生成火焰图的工具，可以用来分析程序的性能问题。本设计从on-cpu、off-cpu以及diff的角度出发，通过JSON文件来修改需求，可自定义采样率、采样周期、文件保存路径等。通过对生成的svg图分析，可以直观的发现程序的性能瓶颈。
+FlameGraph 是一个用于生成火焰图的工具，可以用来分析程序的性能问题。本设计从``on-cpu``、``off-cpu``以及``diff``的角度出发，通过加载库的方式调用性能检测函数，而仅需对JSON文件来修改需求，即可根据需求自定义采样率、采样周期、文件保存路径等。采样完毕后会生成svg图，可以直观的找到程序的性能瓶颈所在。
 
 
 
@@ -37,18 +37,20 @@ diff 类型的火焰图用于比较两个不同时间点的程序性能差异。
 JSON 文件应具有以下结构，可以根据需要选择一项或多项（on-cpu、off-cpu、diff）：
 
 ```json
-{
-  "on-cpu": {
+[
+  {
+    "type": "on-cpu",
     "sampling_rates": "99",
-    "durations": "20",
-    "output_file_path": "/home/zsy/code/FlameGraph/svgs/",
+    "durations": "4",
+    "output_file_path": "/home/zsy/code/MyFlameGraph/svgs/",
     "generate_svg_names": "generate-on-cpu",
     "events": []
   },
-  "off-cpu": {
+  {
+    "type": "off-cpu",
     "sampling_rates": "99",
-    "durations": "20",
-    "output_file_path": "/home/zsy/code/FlameGraph/svgs/",
+    "durations": "4",
+    "output_file_path": "/home/zsy/code/MyFlameGraph/svgs/",
     "generate_svg_names": "generate-off-cpu",
     "events": [
       "sched:sched_switch",
@@ -58,15 +60,16 @@ JSON 文件应具有以下结构，可以根据需要选择一项或多项（on-
       "sched:sched_stat_wait"
     ]
   },
-  "diff": {
+  {
+    "type": "diff",
     "sampling_rates": "99",
-    "durations": "20",
-    "output_file_path": "/home/zsy/code/FlameGraph/svgs/",
+    "durations": "4",
+    "output_file_path": "/home/zsy/code/MyFlameGraph/svgs/",
     "generate_svg_names": "generate-diff",
     "events": [
       {
-        "delay_time":"5",
-        "type":"on-cpu",
+        "delay_time": "0",
+        "type": "off-cpu",
         "diff_off_cpu_events": [
           "sched:sched_switch",
           "sched:sched_stat_sleep",
@@ -74,11 +77,11 @@ JSON 文件应具有以下结构，可以根据需要选择一项或多项（on-
           "sched:sched_stat_blocked",
           "sched:sched_stat_wait"
         ],
-        "diff_on_cpu_events":[]
+        "diff_on_cpu_events": []
       }
     ]
   }
-}
+]
 
 ```
 
@@ -86,7 +89,7 @@ JSON 文件应具有以下结构，可以根据需要选择一项或多项（on-
 
 ## 参数说明
 
-- **types**：指定要运行的性能测试类型。可选项：on-cpu、off-cpu、diff
+- **type**：指定要运行的性能测试类型。可选项：on-cpu、off-cpu、diff
 
 - **sampling_rates**：采样率，表示每秒采样的次数。较高的采样率可以得到更精确的数据，但会增加系统的开销。默认值为 99。
 
@@ -121,7 +124,45 @@ JSON 文件应具有以下结构，可以根据需要选择一项或多项（on-
 
 
 
+# myflamegraph 库的安装方法
+
+### 1. 代码git clone 到本地
+
+```shell
+git clone git@github.com:zsy-uestc/MyFlameGraph.git
+```
+
+### 2. 运行写好的安装库脚本
+
+```sh
+./run.sh
+```
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 # myflamegraph 测试函数使用说明
+
+# myflamegraph 库的使用方法
 
 ### 1. 概述
 
@@ -136,20 +177,22 @@ JSON 文件应具有以下结构，可以根据需要选择一项或多项（on-
 ```c++
 #include "showFlameGraph.h"
 
-class MyTestFunction : public ShowFlameGraph{
+class MyTestFunction : public myflamegraph::ShowFlameGraph{
     
 }
 ```
 
-在主函数中，首先创建测试类的实例，并正确传入JSON的绝对路径至GenerateFlameGraph（）方法。注意GenerateFlameGraph方法一定要在测试函数前运行，才能达到检测的效果。
+在主函数中，首先创建测试类的实例，并正确传入JSON的绝对路径至GenerateFlameGraph() 方法。
+
+注意GenerateFlameGraph() 方法一定要在测试函数前运行，才能达到检测的效果。
 
 ```c++
 #include "testFunction.h"
 int main() {
     std::string config_file_path = "/home/zsy/code/MyFlameGraph/config/myconfig.json";
-    myflamegraph::MyTestFunction mtf;
-    mtf.GenerateFlameGraph(config_file_path);   //注意要在测试函数前面运行
-    mtf.TestFlameGraph();
+    MyTestFunction mtf;
+    mtf.GenerateFlameGraph(config_file_path);   //启动检测函数
+    mtf.OtherFuntion();							//其他的函数正常运行
     return 0;
 }
 ```
