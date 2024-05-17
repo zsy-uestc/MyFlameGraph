@@ -207,4 +207,3 @@ int main() {
 
 ## 运行效果
 
-![on-cpu](./svgs/generate-on-cpu.svg)
