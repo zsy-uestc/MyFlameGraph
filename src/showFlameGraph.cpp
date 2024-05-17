@@ -43,17 +43,17 @@ void ShowFlameGraph::performPerformanceTest(const std::string& testType, const s
         command += " && sudo perf script > perf.script";                    
         if(delay_time == "-1"){
             // 如果 delay_time 为-1，则表示为只运行 on-cpu
-            command += " && ../third_party/FlameGraph/stackcollapse-perf.pl perf.script > out.folded"; 
-            command += " && ../third_party/FlameGraph/flamegraph.pl --title=\"ON-CPU Time Flame Graph\" out.folded  > " + fileName + ".svg";
-            command += " && mv " + fileName + ".svg " + outputFilePath;
+            command += " &&  /usr/bin/stackcollapse-perf.pl perf.script > out.folded";
+            command += " &&  /usr/bin/flamegraph.pl --title=\"ON-CPU Time Flame Graph\" out.folded  > " + fileName + ".svg";
+            command += " &&  mv " + fileName + ".svg " + outputFilePath;
             command += " &&  find . -type f -name 'perf*' -exec rm  -f {} + ";
             command += " &&  find . -type f -name 'out*' -exec rm  -f {} + ";
         }else if(delay_time == "-2"){
             // 如果 delay_time 为 -2，则表示运行的是diff，第二次运行，运行完之后需要求差分并删除无用数据
             std::cout<<"delay_time == -2"<<std::endl;
-            command += " && ../third_party/FlameGraph/stackcollapse-perf.pl perf.script > out2.folded";
-            command += " && ../third_party/FlameGraph/difffolded.pl out2.folded out1.folded > " + fileName + ".folded"; 
-            command += " && ../third_party/FlameGraph/flamegraph.pl --title=\"DIFF-ON-CPU Time Flame Graph\" " + fileName + ".folded > " + fileName + ".svg";
+            command += " && /usr/bin/stackcollapse-perf.pl perf.script > out2.folded";
+            command += " && /usr/bin/difffolded.pl out2.folded out1.folded > " + fileName + ".folded"; 
+            command += " && /usr/bin/flamegraph.pl --title=\"DIFF-ON-CPU Time Flame Graph\" " + fileName + ".folded > " + fileName + ".svg";
             command += " && mv " + fileName + ".svg " + outputFilePath;
             command += " &&  find . -type f -name 'out*' -exec rm  -f {} + ";
             command += " &&  find . -type f -name 'perf*' -exec rm  -f {} + ";
@@ -67,21 +67,21 @@ void ShowFlameGraph::performPerformanceTest(const std::string& testType, const s
         command += " && sudo perf script > perf.script";
         if(delay_time == "-1"){
             // 如果 delay_time 为-1，则表示为只运行 off-cpu
-            command += " && ../third_party/FlameGraph/stackcollapse-perf.pl perf.script > out.folded";
-            command += " && ../third_party/FlameGraph/flamegraph.pl --color=io --title=\"Off-CPU Time Flame Graph\" out.folded > " + fileName + ".svg";
+            command += " && /usr/bin/stackcollapse-perf.pl perf.script > out.folded";
+            command += " && /usr/bin/flamegraph.pl --color=io --title=\"Off-CPU Time Flame Graph\" out.folded > " + fileName + ".svg";
             command += " && mv " + fileName + ".svg " + outputFilePath;
             command += " &&  find . -type f -name 'perf*' -exec rm  -f {} + ";
         }else if(delay_time == "-2"){
             // 如果 delay_time 为 -2，则表示运行的是diff，第二次运行，运行完之后需要求差分并删除无用数据
-            command += " && ../third_party/FlameGraph/stackcollapse-perf.pl perf.script > out2.folded";
-            command += " && ../third_party/FlameGraph/difffolded.pl out1.folded out2.folded > out.folded"; 
-            command += " && ../third_party/FlameGraph/flamegraph.pl --title=\"DIFF-Off-CPU Time Flame Graph\" out.folded > " + fileName + ".svg";
+            command += " && /usr/bin/stackcollapse-perf.pl perf.script > out2.folded";
+            command += " && /usr/bin/difffolded.pl out1.folded out2.folded > out.folded"; 
+            command += " && /usr/bin/flamegraph.pl --title=\"DIFF-Off-CPU Time Flame Graph\" out.folded > " + fileName + ".svg";
             command += " && mv " + fileName + ".svg " + outputFilePath;
             command += " &&  find . -type f -name 'out*' -exec rm  -f {} + ";
             command += " &&  find . -type f -name 'perf*' -exec rm  -f {} + ";
         }else{
             // 如果 delay_time 不为 -1 -2 ，则表示运行的是diff第一次，需要保留folded数据，且不删除，但不生成svg
-            command += " && ../third_party/FlameGraph/stackcollapse-perf.pl perf.script > out1.folded";
+            command += " && /usr/bin/stackcollapse-perf.pl perf.script > out1.folded";
         }
 
     } else {
@@ -150,10 +150,10 @@ void ShowFlameGraph::ExecuteFlameGraph(const std::string& json_file_path) {
         // 读取并解析JSON配置文件
         nlohmann::json config = ShowFlameGraph::LoadJson(json_file_path);
 
-        // 遍历配置中的每种类型
-        for (auto& item : config.items()) {
-            std::string type = item.key();
-            auto& params = item.value();
+        // 遍历配置数组中的每个配置项
+        for (auto& config_item : config) {
+            std::string type = config_item["type"];
+            auto& params = config_item;
 
             // 提取配置参数
             std::string sampling_rate = params["sampling_rates"];
@@ -164,16 +164,17 @@ void ShowFlameGraph::ExecuteFlameGraph(const std::string& json_file_path) {
             // 处理events参数
             std::vector<std::string> events;
             std::string delay_time; 
-            std::string diff_type;  //测试on-cpu还是off-cpu的diff
-            
+            std::string diff_type;  // 测试on-cpu还是off-cpu的diff
+
             if (type == "diff") {
                 // 对于diff类型，我们需要提取type和delay_time
                 auto& diff_params = params["events"].at(0);
-                //events = { diff_params["type"] }; // type作为事件
                 diff_type = diff_params["type"];
                 delay_time = diff_params["delay_time"];
                 if(diff_type == "off-cpu"){
-                    events= diff_params["diff_off_cpu_events"]; //读取diff中指定的测试off-cpu哪些性能
+                    events = diff_params["diff_off_cpu_events"]; // 读取diff中指定的测试off-cpu哪些性能
+                } else if(diff_type == "on-cpu") {
+                    events = diff_params["diff_on_cpu_events"]; // 读取diff中指定的测试on-cpu哪些性能
                 }
             } else {
                 // 对于其他类型，直接使用events数组
@@ -190,23 +191,14 @@ void ShowFlameGraph::ExecuteFlameGraph(const std::string& json_file_path) {
                     }
                 }
             }
-            std::cout<<events_str<<std::endl;
+            std::cout << events_str << std::endl;
             // 执行性能测试
             if (type == "diff") {
-                if(diff_type == "on-cpu"){
-                    performPerformanceTest(diff_type, sampling_rate, duration, output_file_path, generate_svg_name, events_str, delay_time);
-                    std::this_thread::sleep_for(std::chrono::seconds(std::stoi(delay_time))); // 等待delay_time秒
-                    delay_time = std::to_string(-2);    //提示，是第二次运行on-cpu了，运行完毕之后需要将folded做查分，并删除无用数据
-                    performPerformanceTest(diff_type, sampling_rate, duration, output_file_path, generate_svg_name, events_str, delay_time);
-                }else if(diff_type == "off-cpu"){
-                    performPerformanceTest(diff_type, sampling_rate, duration, output_file_path, generate_svg_name, events_str, delay_time);
-                    std::this_thread::sleep_for(std::chrono::seconds(std::stoi(delay_time))); // 等待delay_time秒
-                    delay_time = std::to_string(-2);    //提示，是第二次运行on-cpu了，运行完毕之后需要将folded做查分，并删除无用数据
-                    performPerformanceTest(diff_type, sampling_rate, duration, output_file_path, generate_svg_name, events_str, delay_time);
-                }else{
-                    std::cerr << "diff中所选类型非 on-cpu 或 off-cpu" << std::endl;
-                }
-            }else{
+                performPerformanceTest(diff_type, sampling_rate, duration, output_file_path, generate_svg_name, events_str, delay_time);
+                std::this_thread::sleep_for(std::chrono::seconds(std::stoi(delay_time))); // 等待delay_time秒
+                delay_time = std::to_string(-2);    // 提示，是第二次运行on-cpu了，运行完毕之后需要将folded做查分，并删除无用数据
+                performPerformanceTest(diff_type, sampling_rate, duration, output_file_path, generate_svg_name, events_str, delay_time);
+            } else {
                 delay_time = std::to_string(-1);
                 performPerformanceTest(type, sampling_rate, duration, output_file_path, generate_svg_name, events_str, delay_time);
             }
@@ -215,6 +207,8 @@ void ShowFlameGraph::ExecuteFlameGraph(const std::string& json_file_path) {
         std::cerr << "Error: " << e.what() << std::endl;
     }
 }
+
+
 
 pid_t ShowFlameGraph::child_pid = 0;
 void ShowFlameGraph::GenerateFlameGraph(const std::string& json_file_path) {
@@ -230,7 +224,6 @@ void ShowFlameGraph::GenerateFlameGraph(const std::string& json_file_path) {
     } else {
         // fork 失败
         std::cerr << "无法创建子进程。" << std::endl;
-        // 处理错误情况
     }
 }
 
@@ -251,8 +244,8 @@ void ShowFlameGraph::installPerf() {
 void ShowFlameGraph::Cleanup() {
     // 主进程退出时的清理函数
     if (child_pid > 0) {
-    kill(child_pid, SIGTERM); // 发送 SIGTERM 信号给子进程
-    std::cout << "检测到测试函数已运行结束，正在终止子进程... ..." << std::endl;
+        kill(child_pid, SIGTERM); // 发送 SIGTERM 信号给子进程
+        std::cout << "检测到测试函数已运行结束，正在终止子进程... ..." << std::endl;
     }
 }
 
