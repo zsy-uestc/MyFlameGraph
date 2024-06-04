@@ -1,0 +1,1 @@
+/usr/bin/c++     CMakeFiles/myFlameGraph.dir/src/main.cpp.o CMakeFiles/myFlameGraph.dir/src/testFunction.cpp.o CMakeFiles/myFlameGraph.dir/src/showFlameGraph.cpp.o CMakeFiles/myFlameGraph.dir/src/database_server.cpp.o  -o myFlameGraph  -lsqlite3 -lpthread 

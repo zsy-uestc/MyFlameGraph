@@ -1,0 +1,2 @@
+/usr/bin/ar qc libmyflamegraph.a  CMakeFiles/myflamegraph.dir/src/showFlameGraph.cpp.o
+/usr/bin/ranlib libmyflamegraph.a

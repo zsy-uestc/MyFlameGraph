@@ -1,0 +1,8 @@
+/home/zsy/code/MyFlameGraph/build/CMakeFiles/install/local.dir
+/home/zsy/code/MyFlameGraph/build/CMakeFiles/install.dir
+/home/zsy/code/MyFlameGraph/build/CMakeFiles/list_install_components.dir
+/home/zsy/code/MyFlameGraph/build/CMakeFiles/rebuild_cache.dir
+/home/zsy/code/MyFlameGraph/build/CMakeFiles/edit_cache.dir
+/home/zsy/code/MyFlameGraph/build/CMakeFiles/install/strip.dir
+/home/zsy/code/MyFlameGraph/build/CMakeFiles/myflamegraph.dir
+/home/zsy/code/MyFlameGraph/build/CMakeFiles/myFlameGraph.dir
