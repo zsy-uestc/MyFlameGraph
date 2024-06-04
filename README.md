@@ -179,7 +179,7 @@ git clone git@github.com:zsy-uestc/MyFlameGraph.git
 
 class MyTestFunction : public myflamegraph::ShowFlameGraph{
     
-}    
+}
 ```
 
 在主函数中，首先创建测试类的实例，并正确传入JSON的绝对路径至GenerateFlameGraph() 方法。
@@ -204,6 +204,7 @@ int main() {
 - 请确保json配置文件格式正确。
 
 
-
-## 运行效果
-
+## 运行效果(在svg文件夹内，测试的是自己写的测试函数)
+![on-cpu-visualizations](https://github.com/zsy-uestc/MyFlameGraph/blob/main/svgs/generate-on-cpu.svg)  
+![off-cpu-visualizations](https://github.com/zsy-uestc/MyFlameGraph/blob/main/svgs/generate-off-cpu.svg)  
+![diff-visualizations](https://github.com/zsy-uestc/MyFlameGraph/blob/main/svgs/generate-diff.svg)
