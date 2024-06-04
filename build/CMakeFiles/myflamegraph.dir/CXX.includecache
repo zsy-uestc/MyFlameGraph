@@ -1,0 +1,44 @@
+#IncludeRegexLine: ^[ 	]*[#%][ 	]*(include|import)[ 	]*[<"]([^">]+)([">])
+
+#IncludeRegexScan: ^.*$
+
+#IncludeRegexComplain: ^$
+
+#IncludeRegexTransform: 
+
+../include/database_def.h
+string
+-
+
+../include/database_server.h
+database_def.h
+../include/database_def.h
+
+/home/zsy/code/MyFlameGraph/include/showFlameGraph.h
+string
+-
+nlohmann/json.hpp
+-
+unistd.h
+-
+
+/home/zsy/code/MyFlameGraph/src/showFlameGraph.cpp
+../include/showFlameGraph.h
+/home/zsy/code/MyFlameGraph/include/showFlameGraph.h
+database_def.h
+/home/zsy/code/MyFlameGraph/src/database_def.h
+database_server.h
+/home/zsy/code/MyFlameGraph/src/database_server.h
+iostream
+-
+fstream
+-
+ostream
+-
+string
+-
+sys/wait.h
+-
+thread
+-
+

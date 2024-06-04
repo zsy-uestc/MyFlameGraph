@@ -1,4 +1,6 @@
 #include "../include/showFlameGraph.h"
+#include "database_def.h"
+#include "database_server.h"
 #include <iostream>
 #include <fstream>
 #include <ostream>
@@ -201,6 +203,18 @@ void ShowFlameGraph::ExecuteFlameGraph(const std::string& json_file_path) {
             } else {
                 delay_time = std::to_string(-1);
                 performPerformanceTest(type, sampling_rate, duration, output_file_path, generate_svg_name, events_str, delay_time);
+            }
+
+            //将执行信息保存在数据库
+            database_server::ProfileConfig config;
+            database_server::DataBaseServer db = database_server::DataBaseServer::GetInstance();
+            config.id = db.GetCurrentTimeString();
+            config.type = type;
+            config.durations = duration;
+            config.output_file_path = output_file_path + generate_svg_name + ".svg";
+            config.sampling_rates = sampling_rate;
+            if(!db.AddConfigInfo(config)){
+                std::cout<<"AddConfigInfo defeat!"<<std::endl;
             }
         }
     } catch (const std::exception& e) {
