@@ -2,7 +2,7 @@
   {
     "type": "on-cpu",
     "sampling_rates": "99",
-    "durations": "20",
+    "durations": "12",
     "output_file_path": "/home/zsy/code/MyFlameGraph/svgs/",
     "generate_svg_names": "generate-on-cpu",
     "events": []
@@ -10,7 +10,7 @@
   {
     "type": "off-cpu",
     "sampling_rates": "99",
-    "durations": "20",
+    "durations": "6",
     "output_file_path": "/home/zsy/code/MyFlameGraph/svgs/",
     "generate_svg_names": "generate-off-cpu",
     "events": [
@@ -24,7 +24,7 @@
   {
     "type": "diff",
     "sampling_rates": "99",
-    "durations": "20",
+    "durations": "9",
     "output_file_path": "/home/zsy/code/MyFlameGraph/svgs/",
     "generate_svg_names": "generate-diff",
     "events": [
